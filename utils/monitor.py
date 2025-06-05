@@ -235,7 +235,7 @@ class WebMonitor:
                 if self.check_updates():
                     latest_message = self.get_latest_message()
                     if latest_message:
-                        send("最新消息发布通知！！"，latest_message)
+                        send("最新消息发布通知！！", latest_message)
                         logger.info("更新通知发送成功")
                 
                 # 等待下一次检查
