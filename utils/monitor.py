@@ -186,7 +186,7 @@ class WebMonitor:
             if latest_message:
                 current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 message = f"每日汇总 ({current_time}):\n最新消息：\n{latest_message}"
-                send(message)
+                send("每日汇总消息",message)
                 elapsed = time.time() - start_time
                 logger.info(f"每日汇总消息发送成功，耗时: {elapsed:.2f}秒")
             else:
@@ -235,7 +235,7 @@ class WebMonitor:
                 if self.check_updates():
                     latest_message = self.get_latest_message()
                     if latest_message:
-                        send(latest_message)
+                        send("最新消息发布通知！！"，latest_message)
                         logger.info("更新通知发送成功")
                 
                 # 等待下一次检查
