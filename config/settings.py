@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 import os
 from pydantic import BaseSettings, Field, validator
 from dotenv import load_dotenv
@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     # 定时推送配置
     DAILY_PUSH_ENABLED: bool = Field(default=True)  # 是否启用每日推送
-    DAILY_PUSH_TIMES: list = Field(default=["09:00", "21:00"])  # 每日推送时间
+    DAILY_PUSH_TIMES: str = Field(default="09:00,21:00")  # 每日推送时间
 
     # 日志配置
     LOG_LEVEL: str = Field(default="INFO")
@@ -46,12 +46,12 @@ class Settings(BaseSettings):
             return v.lower() in ('true', '1', 'yes', 'y')
         return v
 
-    @validator('DAILY_PUSH_TIMES', pre=True)
-    def parse_push_times(cls, v):
-        if isinstance(v, str):
-            v = v.split('#')[0].strip()
-            return [time.strip() for time in v.split(',')]
-        return v
+    @property
+    def push_times(self) -> List[str]:
+        """获取推送时间列表"""
+        if not self.DAILY_PUSH_TIMES:
+            return ["09:00", "21:00"]
+        return [time.strip() for time in self.DAILY_PUSH_TIMES.split(',') if time.strip()]
 
     class Config:
         env_file = ".env"
@@ -65,6 +65,8 @@ all_vars = {
     'TARGET_URL': os.getenv('TARGET_URL'),
     'SCAN_INTERVAL': os.getenv('SCAN_INTERVAL'),
     'SEND_STARTUP_NOTIFY': os.getenv('SEND_STARTUP_NOTIFY'),
+    'DAILY_PUSH_ENABLED': os.getenv('DAILY_PUSH_ENABLED'),
+    'DAILY_PUSH_TIMES': os.getenv('DAILY_PUSH_TIMES'),
     'LOG_LEVEL': os.getenv('LOG_LEVEL'),
     'LOG_RETENTION': os.getenv('LOG_RETENTION')
 }
@@ -77,6 +79,9 @@ print("\n=== Final Settings Values ===")
 print(f"TARGET_URL: {settings.TARGET_URL}")
 print(f"SCAN_INTERVAL: {settings.SCAN_INTERVAL}")
 print(f"SEND_STARTUP_NOTIFY: {settings.SEND_STARTUP_NOTIFY}")
+print(f"DAILY_PUSH_ENABLED: {settings.DAILY_PUSH_ENABLED}")
+print(f"DAILY_PUSH_TIMES: {settings.DAILY_PUSH_TIMES}")
+print(f"Push times list: {settings.push_times}")
 print(f"LOG_LEVEL: {settings.LOG_LEVEL}")
 print(f"LOG_RETENTION: {settings.LOG_RETENTION}")
 print(f"LOG_DIR: {settings.LOG_DIR}") 
